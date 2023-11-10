@@ -6,13 +6,35 @@ export default function Student() {
     { id: 1, name: "jhon", createdAt: 1234556 },
     { id: 2, name: "two", createdAt: 33456678 },
   ]);
+  //  define useState();
+  const [studentname, setStudentname] = useState("us");
 
+  // setPayload(studentname);
+
+  const submit = () => {
+    const payload = {
+      data: {
+        name: studentname,
+      },
+    };
+    fetch(`http://localhost:1337/api/students`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload),
+    })
+      .then((res) => res.json())
+      .then((data) => console.log(data.data))
+      .catch((err) => {
+        console.log(err);
+      });
+  };
   // useeffect is a hooks variable function that is used to actomation call when component is render
 
   //    useEffect(cbfn, arr)
   //  cbfn => callbackfuntion()=>{};
   //  arr = Array[];
-
   useEffect(() => {
     fetch(`http://localhost:1337/api/students`)
       .then((res) => res.json())
@@ -31,6 +53,28 @@ export default function Student() {
         console.log(err);
       });
   }, []);
+  const DeleteStudent = (e) => {
+    let itemdelete = window.confirm("do you want to delete");
+    let x = e.target.closest("tr");
+    const deleteItem = e.target.closest("tr").querySelector("th").innerHTML;
+
+    if (itemdelete === true) {
+      fetch(`http://localhost:1337/api/students/${deleteItem}`, {
+        method: "DELETE",
+      })
+        .then((res) => {
+          res.json();
+        })
+        .then((data) => {
+          console.log(data);
+          x.remove();
+          alert("deleted Successfully");
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    }
+  };
 
   return (
     <>
@@ -38,39 +82,18 @@ export default function Student() {
         <form className="mt-5">
           <div className="mb-3">
             <label htmlFor="exampleInputEmail1" className="form-label">
-              Email address
+              Enter name
             </label>
             <input
-              type="email"
+              type="text"
               className="form-control"
-              id="exampleInputEmail1"
-              aria-describedby="emailHelp"
-            />
-            <div id="emailHelp" className="form-text">
-              We'll never share your email with anyone else.
-            </div>
-          </div>
-          <div className="mb-3">
-            <label htmlFor="exampleInputPassword1" className="form-label">
-              Password
-            </label>
-            <input
-              type="password"
-              className="form-control"
-              id="exampleInputPassword1"
+              id="username"
+              value={studentname}
+              onChange={(e) => setStudentname(e.target.value)}
+              aria-describedby="useranHelp"
             />
           </div>
-          <div className="mb-3 form-check">
-            <input
-              type="checkbox"
-              className="form-check-input"
-              id="exampleCheck1"
-            />
-            <label className="form-check-label" htmlFor="exampleCheck1">
-              Check me out
-            </label>
-          </div>
-          <button type="submit" className="btn btn-primary">
+          <button type="button" className="btn btn-primary" onClick={submit}>
             Submit
           </button>
         </form>
@@ -83,6 +106,7 @@ export default function Student() {
               <th scope="col">#</th>
               <th scope="col">Name</th>
               <th scope="col">createdAt</th>
+              <th scope="col">Action</th>
             </tr>
           </thead>
           <tbody>
@@ -92,6 +116,18 @@ export default function Student() {
                   <th scope="row">{cv.id}</th>
                   <td>{cv.name}</td>
                   <td>{cv.createdAt}</td>
+                  <td>
+                    <button className="btn btn-warning btn-sm">edit</button>
+                    <button className="btn btn-success btn-sm">view</button>
+                    <button
+                      className="btn btn-danger btn-sm"
+                      onClick={(e) => {
+                        DeleteStudent(e);
+                      }}
+                    >
+                      delete
+                    </button>
+                  </td>
                 </tr>
               );
             })}
